@@ -1,0 +1,45 @@
+### GET all tasks
+GET http://localhost:3000/tasks
+Accept: application/json
+
+###
+
+### GET a single task by ID
+GET http://localhost:3000/tasks/1
+Accept: application/json
+
+###
+
+### CREATE a new task
+POST http://localhost:3000/tasks
+Content-Type: application/json
+
+{
+    "title": "Cronicals",
+    "autor": "Jorgen Manovic",
+    "editora": "Suma",
+    "idioma": "Portugues",
+    "paginas": "524"
+}
+
+###
+
+### UPDATE a task by ID
+PUT http://localhost:3000/tasks/1
+Content-Type: application/json
+
+{
+    "title": "new",
+    "autor": "new new",
+    "editora": "new",
+    "idioma": "new",
+    "paginas": "new"
+}
+
+###
+
+### DELETE a task by ID
+DELETE http://localhost:3000/tasks/1
+Accept: application/json
+
+###
