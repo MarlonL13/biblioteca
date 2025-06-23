@@ -1,20 +1,44 @@
 {
   "tasks": [
     {
-      "title": "It: A coisa",
-      "autor": "Stephen King",
-      "editora": "Suma",
-      "idioma": "Portugues",
-      "paginas": 1104,
-      "id": "368d"
-    },
-    {
       "id": "4247",
       "title": "Cronicals",
       "autor": "Jorgen Manovic",
       "editora": "Suma",
       "idioma": "Portugues",
       "paginas": "524"
+    },
+    {
+      "id": "4248",
+      "title": "The Silent Patient",
+      "autor": "Alex Michaelides",
+      "editora": "Orion",
+      "idioma": "English",
+      "paginas": "336"
+    },
+    {
+      "id": "4249",
+      "title": "Cem Anos de Solidão",
+      "autor": "Gabriel García Márquez",
+      "editora": "Record",
+      "idioma": "Portugues",
+      "paginas": "368"
+    },
+    {
+      "id": "4250",
+      "title": "Sapiens",
+      "autor": "Yuval Noah Harari",
+      "editora": "L&PM",
+      "idioma": "Portugues",
+      "paginas": "464"
+    },
+    {
+      "id": "4251",
+      "title": "1984",
+      "autor": "George Orwell",
+      "editora": "Companhia das Letras",
+      "idioma": "Portugues",
+      "paginas": "416"
     }
   ]
 }
