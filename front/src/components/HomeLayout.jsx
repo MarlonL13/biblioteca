@@ -1,11 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import BookCard from "../components/BookCard";
+import BookCard from "./BookCard";
 
-export default function Home() {
+export default function HomeClient() {
   const [books, setBooks] = useState([]);
-
   useEffect(() => {
     axios.get("http://localhost:3000/tasks")
       .then(res => setBooks(res.data))
@@ -13,7 +12,6 @@ export default function Home() {
   }, []);
 
   const handleEdit = (book) => {
-    // TODO: Show edit form/modal
     alert(`Edit book: ${book.title}`);
   };
 
