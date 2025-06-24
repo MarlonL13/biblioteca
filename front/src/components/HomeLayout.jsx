@@ -15,6 +15,7 @@ export default function HomeClient() {
     paginas: ""
   });
   const [editBook, setEditBook] = useState(null);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     axios.get("http://localhost:3000/tasks")
@@ -59,6 +60,10 @@ export default function HomeClient() {
     setNewBook({ title: "", autor: "", editora: "", idioma: "", paginas: "" });
   };
 
+  const filteredBooks = books.filter(book =>
+    book.title.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-sky-100 to-pink-100 flex flex-col items-center py-12">
       <main className="flex flex-col gap-10 w-full max-w-6xl">
@@ -72,6 +77,16 @@ export default function HomeClient() {
         >
           Adicionar Novo Livro
         </button>
+               {/* Search Bar */}
+        <div className="flex justify-center mb-6">
+          <input
+            type="text"
+            placeholder="Buscar livro por título..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full max-w-md px-5 py-3 border border-blue-400 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/80 text-slate-800 text-lg placeholder-slate-500 transition"
+          />
+        </div>
         <AddBookModal
           isOpen={showModal}
           onClose={handleModalClose}
@@ -81,7 +96,7 @@ export default function HomeClient() {
           isEdit={!!editBook}
         />
         <div className="flex flex-wrap justify-center gap-8">
-          {books.map(book => (
+          {filteredBooks.map(book => (
             <BookCard
               key={book.id}
               book={book}
