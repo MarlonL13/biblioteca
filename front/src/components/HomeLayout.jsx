@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import BookCard from "./BookCard";
 import AddBookModal from "./AddBookModal";
+import Logout from "../components/Logout"
 
 export default function HomeClient() {
   const [books, setBooks] = useState([]);
@@ -68,6 +69,9 @@ export default function HomeClient() {
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-sky-100 to-pink-100 flex flex-col items-center py-12">
       <main className="flex flex-col gap-10 w-full max-w-6xl">
         <h1 className="text-4xl font-extrabold text-slate-800 text-center mb-4 drop-shadow">📚 Biblioteca</h1>
+        <div >
+          <Logout/>
+        </div>
         <button
           className="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800 mb-6"
           onClick={() => {
@@ -105,6 +109,7 @@ export default function HomeClient() {
             />
           ))}
         </div>
+        
       </main>
     </div>
   );
