@@ -3,7 +3,11 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import BookCard from "./BookCard";
 import AddBookModal from "./AddBookModal";
-import Logout from "../components/Logout"
+import Header from "./Header";
+import { IoSearch } from "react-icons/io5";
+import { LuBookPlus } from "react-icons/lu";
+
+
 
 export default function HomeClient() {
   const [books, setBooks] = useState([]);
@@ -64,33 +68,33 @@ export default function HomeClient() {
   const filteredBooks = books.filter(book =>
     book.title.toLowerCase().includes(search.toLowerCase())
   );
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-sky-100 to-pink-100 flex flex-col items-center py-12">
+  return (<>
+      <Header/>
+   <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-sky-100 to-pink-100 flex flex-col items-center py-12">
       <main className="flex flex-col gap-10 w-full max-w-6xl">
-        <h1 className="text-4xl font-extrabold text-slate-800 text-center mb-4 drop-shadow">📚 Biblioteca</h1>
-        <div >
-          <Logout/>
-        </div>
+        <div className="flex w-full gap-3" >
+               {/* Search Bar */}
+          <div className="flex justify-center items-center gap-2 mb-6 w-full flex-3 ">
+            <IoSearch className="text-4xl text-blue-700" />
+            <input
+              type="text"
+              placeholder="Buscar livro por título..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="w-full px-5 py-3  border border-blue-400 rounded shadow focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/80 text-slate-800 text-lg placeholder-slate-500 transition"
+            />
+          </div>
         <button
-          className="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800 mb-6"
+          className="bg-blue-700 flex items-center gap-2 text-white px-4 py-2 w-fit rounded hover:bg-blue-800 mb-6"
           onClick={() => {
             setShowModal(true);
             setEditBook(null);
           }}
         >
-          Adicionar Novo Livro
+          <LuBookPlus className="" />Adicionar
         </button>
-               {/* Search Bar */}
-        <div className="flex justify-center mb-6">
-          <input
-            type="text"
-            placeholder="Buscar livro por título..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="w-full max-w-md px-5 py-3 border border-blue-400 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/80 text-slate-800 text-lg placeholder-slate-500 transition"
-          />
         </div>
+        
         <AddBookModal
           isOpen={showModal}
           onClose={handleModalClose}
@@ -112,5 +116,7 @@ export default function HomeClient() {
         
       </main>
     </div>
+  </>
+   
   );
 }
