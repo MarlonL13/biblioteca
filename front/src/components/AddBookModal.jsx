@@ -1,5 +1,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { FiX, FiEdit2, FiBookOpen } from "react-icons/fi";
 
 export default function AddBookModal({
   isOpen,
@@ -31,28 +32,23 @@ export default function AddBookModal({
             exit={{ scale: 0.7, opacity: 0, y: 80 }}
             transition={{ type: "spring", stiffness: 200, damping: 18 }}
           >
-            <button
+            <motion.button
+              whileTap={{ scale: 0.85 }}
               className="absolute top-3 right-4 text-gray-400 hover:text-gray-700 text-2xl font-bold"
               onClick={onClose}
               aria-label="Fechar"
             >
-              &times;
-            </button>
-            <h2
-              className={`text-2xl font-extrabold mb-6 flex items-center gap-2 text-gray-900`}
-            >
+              <FiX />
+            </motion.button>
+            <h2 className="text-2xl font-extrabold mb-6 flex items-center gap-2 text-gray-900">
               {isEdit ? (
                 <>
-                  <span role="img" aria-label="Editar">
-                    ✏️
-                  </span>
+                  <FiEdit2 />
                   Editar Livro
                 </>
               ) : (
                 <>
-                  <span role="img" aria-label="Adicionar">
-                    📚
-                  </span>
+                  <FiBookOpen />
                   Adicionar Novo Livro
                 </>
               )}
@@ -146,12 +142,21 @@ export default function AddBookModal({
                   min={1}
                 />
               </div>
-              <button
-                type="submit"
-                className="bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-800 transition"
-              >
-                Salvar
-              </button>
+              <div className="flex gap-3 mt-2">
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-800 transition"
+                >
+                  Salvar
+                </button>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="flex-1 bg-slate-100 text-slate-700 px-6 py-3 rounded-xl font-semibold border border-slate-300 hover:bg-slate-200 transition"
+                >
+                  Cancelar
+                </button>
+              </div>
             </form>
           </motion.div>
         </motion.div>
