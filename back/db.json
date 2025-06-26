@@ -1,6 +1,17 @@
 {
   "tasks": [
     {
+<<<<<<< HEAD
+=======
+      "id": "4247",
+      "title": "Cronica",
+      "autor": "Jorgen Manovic",
+      "editora": "Suma",
+      "idioma": "Portugues",
+      "paginas": "524"
+    },
+    {
+>>>>>>> 4a68270 (aa)
       "id": "4248",
       "title": "The Silent Patient",
       "autor": "Alex Michaelides",
