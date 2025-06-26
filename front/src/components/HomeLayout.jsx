@@ -3,11 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import BookCard from "./BookCard";
 import AddBookModal from "./AddBookModal";
-import Header from "./Header";
-import { IoSearch } from "react-icons/io5";
-import { LuBookPlus } from "react-icons/lu";
-
-
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function HomeClient() {
   const [books, setBooks] = useState([]);
@@ -52,11 +48,17 @@ export default function HomeClient() {
     }
   };
 
-  const handleSaveChanges = async (e) => {
+const handleSaveChanges = async (e) => {
     e.preventDefault();
-    alert("Salvar alterações (placeholder)");
-    setEditBook(null);
-    setShowModal(false);
+    if (!editBook.title.trim() || !editBook.autor.trim()) return;
+    try {
+      const res = await axios.put(`http://localhost:3000/tasks/${editBook.id}`, editBook);
+      setBooks(books.map(book => book.id === editBook.id ? res.data : book));
+      setEditBook(null);
+      setShowModal(false);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleModalClose = () => {
@@ -68,33 +70,39 @@ export default function HomeClient() {
   const filteredBooks = books.filter(book =>
     book.title.toLowerCase().includes(search.toLowerCase())
   );
-  return (<>
-      <Header/>
-   <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-sky-100 to-pink-100 flex flex-col items-center py-12">
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-indigo-200 via-sky-200 to-pink-200 flex flex-col items-center py-12">
       <main className="flex flex-col gap-10 w-full max-w-6xl">
-        <div className="flex w-full gap-3" >
-               {/* Search Bar */}
-          <div className="flex justify-center items-center gap-2 mb-6 w-full flex-3 ">
-            <IoSearch className="text-4xl text-blue-700" />
-            <input
-              type="text"
-              placeholder="Buscar livro por título..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="w-full px-5 py-3  border border-blue-400 rounded shadow focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/80 text-slate-800 text-lg placeholder-slate-500 transition"
-            />
-          </div>
-        <button
-          className="bg-blue-700 flex items-center gap-2 text-white px-4 py-2 w-fit rounded hover:bg-blue-800 mb-6"
+        <h1 className="text-4xl font-extrabold text-slate-800 text-center mb-4 drop-shadow">📚 Biblioteca</h1>
+        <motion.button
+          whileHover={{
+            scale: 1.06,
+            boxShadow: "0 4px 24px #60a5fa88",
+          }}
+          whileTap={{
+            scale: 0.97,
+            boxShadow: "0 2px 16px #818cf888",
+          }}
+          transition={{ type: "spring", stiffness: 200, damping: 16 }}
+          className="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800 mb-6"
           onClick={() => {
             setShowModal(true);
             setEditBook(null);
           }}
         >
-          <LuBookPlus className="" />Adicionar
-        </button>
+          Adicionar Novo Livro
+        </motion.button>
+               {/* Search Bar */}
+        <div className="flex justify-center mb-6">
+          <input
+            type="text"
+            placeholder="Buscar livro por título..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full max-w-md px-5 py-3 border border-blue-400 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/80 text-slate-800 text-lg placeholder-slate-500 transition"
+          />
         </div>
-        
         <AddBookModal
           isOpen={showModal}
           onClose={handleModalClose}
@@ -104,19 +112,41 @@ export default function HomeClient() {
           isEdit={!!editBook}
         />
         <div className="flex flex-wrap justify-center gap-8">
-          {filteredBooks.map(book => (
-            <BookCard
-              key={book.id}
-              book={book}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-          ))}
+          <AnimatePresence>
+            {filteredBooks.map((book, idx) => (
+              <motion.div
+                key={book.id}
+                initial={{ opacity: 0, y: 40, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 40, scale: 0.95 }}
+                whileHover={{
+                  scale: 1.03,
+                  rotateY: 4,
+                  boxShadow: "0 0 24px 4px #60a5fa55",
+                }}
+                whileTap={{
+                  scale: 0.98,
+                  rotateY: -4,
+                  boxShadow: "0 0 32px 8px #818cf855",
+                }}
+                transition={{
+                  duration: 0.5,
+                  delay: idx * 0.07,
+                  type: "spring",
+                  stiffness: 120,
+                  damping: 18,
+                }}
+              >
+                <BookCard
+                  book={book}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
-        
       </main>
     </div>
-  </>
-   
   );
 }
