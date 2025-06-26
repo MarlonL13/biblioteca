@@ -142,7 +142,7 @@ const handleSaveChanges = async (e) => {
           </div>
         </div>
 
-        {/* Analytics Bar (no motion, but visually rich) */}
+        {/* Analytics Bar */}
         <section className="w-full max-w-6xl mb-6 px-6">
           <div className="flex flex-wrap gap-6 justify-between items-center bg-white/80 rounded-lg shadow p-4 text-slate-700 text-base font-medium border border-blue-100">
             <span className="flex items-center gap-2">
