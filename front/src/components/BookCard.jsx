@@ -1,13 +1,15 @@
 import React from "react";
-import { FiEdit2, FiTrash2 } from "react-icons/fi";
+import { FiEdit2, FiTrash2, FiBookOpen, FiCheckCircle } from "react-icons/fi";
 import { motion } from "framer-motion";
 
-export default function BookCard({ book, onEdit, onDelete }) {
+export default function BookCard({ book, onEdit, onDelete, onToggleRent }) {
   return (
     <motion.div
       whileHover={{ scale: 1.04, boxShadow: "0 8px 32px #818cf855" }}
       transition={{ type: "spring", stiffness: 180, damping: 18 }}
-      className="bg-gradient-to-br from-white via-slate-50 to-slate-200 border border-slate-200 shadow-lg rounded-xl p-6 flex flex-col gap-2 w-80"
+      className={`bg-gradient-to-br from-white via-slate-50 to-slate-200 border border-slate-200 shadow-lg rounded-xl p-6 flex flex-col gap-2 w-80 ${
+        book.rented ? "opacity-80" : ""
+      }`}
     >
       <h2 className="text-2xl font-bold text-slate-800 mb-2">{book.title}</h2>
       <p><span className="font-semibold text-slate-600">Autor:</span> <span className="text-slate-700">{book.autor}</span></p>
@@ -30,6 +32,24 @@ export default function BookCard({ book, onEdit, onDelete }) {
           Remover
         </button>
       </div>
+      <motion.button
+        whileHover={{ scale: 1.05, boxShadow: "0 0 12px #60a5fa55" }}
+        whileTap={{ scale: 0.97 }}
+        className={`mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold transition
+          ${book.rented
+            ? "bg-green-100 text-green-700 border border-green-300 hover:bg-green-200"
+            : "bg-blue-100 text-blue-700 border border-blue-300 hover:bg-blue-200"}
+        `}
+        onClick={() => onToggleRent(book)}
+      >
+        {book.rented ? <FiCheckCircle /> : <FiBookOpen />}
+        {book.rented ? "Devolver Livro" : "Alugar Livro"}
+      </motion.button>
+      {book.rented && (
+        <span className="block text-green-600 text-sm mt-2 text-center font-semibold">
+          Livro alugado
+        </span>
+      )}
     </motion.div>
   );
 }

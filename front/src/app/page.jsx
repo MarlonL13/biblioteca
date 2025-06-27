@@ -21,7 +21,7 @@ export default function Login() {
           Bem-vindo ao seu sistema de gerenciamento!
         </p>
         <button
-          className="bg-gradient-to-r from-blue-500 to-pink-400 w-full rounded-xl p-3 text-white font-bold text-lg shadow hover:from-blue-600 hover:to-pink-500 transition"
+          className="cursor-pointer bg-gradient-to-r from-blue-500 to-pink-400 w-full rounded-xl p-3 text-white font-bold text-lg shadow hover:from-blue-600 hover:to-pink-500 transition"
           onClick={() => signIn("github", { callbackUrl: "/home" })}
         >
           Entrar com GitHub

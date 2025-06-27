@@ -5,7 +5,7 @@ import BookCard from "./BookCard";
 import AddBookModal from "./AddBookModal";
 import { motion, AnimatePresence } from "framer-motion";
 import { signOut } from "next-auth/react";
-import { FiLogOut, FiPlus, FiSearch, FiBookOpen, FiFileText, FiUsers, FiGlobe, FiBarChart2 } from "react-icons/fi";
+import { FiLogOut, FiPlus, FiSearch, FiBookOpen, FiFileText, FiUsers, FiGlobe, FiBarChart2, FiBook, FiCheckCircle } from "react-icons/fi";
 
 export default function HomeClient() {
   const [books, setBooks] = useState([]);
@@ -19,6 +19,8 @@ export default function HomeClient() {
   });
   const [editBook, setEditBook] = useState(null);
   const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("all"); // "all", "available", "rented"
+  const [sortBy, setSortBy] = useState("default");
 
   useEffect(() => {
     axios.get("http://localhost:3000/tasks")
@@ -69,21 +71,55 @@ const handleSaveChanges = async (e) => {
     setNewBook({ title: "", autor: "", editora: "", idioma: "", paginas: "" });
   };
 
-  const filteredBooks = books.filter(book =>
-    book.title.toLowerCase().includes(search.toLowerCase())
-  );
+  // Use filteredBooks for analytics
+  const filteredBooks = (() => {
+    let result = books;
+    if (filter === "available") result = books.filter(book => !book.rented);
+    else if (filter === "rented") result = books.filter(book => book.rented);
+    else if (filter === "all") {
+      result = [...books].sort((a, b) => {
+        if (a.rented === b.rented) return 0;
+        return a.rented ? 1 : -1;
+      });
+    }
+    if (search.trim()) {
+      result = result.filter(book =>
+        book.title.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+    // Sorting logic
+    if (sortBy === "title") {
+      result = [...result].sort((a, b) => a.title.localeCompare(b.title));
+    } else if (sortBy === "autor") {
+      result = [...result].sort((a, b) => a.autor.localeCompare(b.autor));
+    } else if (sortBy === "paginas") {
+      result = [...result].sort((a, b) => (parseInt(a.paginas) || 0) - (parseInt(b.paginas) || 0));
+    }
+    return result;
+  })();
 
-  const totalBooks = books.length;
-  const totalPages = books.reduce((sum, b) => sum + (parseInt(b.paginas) || 0), 0);
-  const uniqueAuthors = new Set(books.map(b => b.autor)).size;
+  const totalBooks = filteredBooks.length;
+  const totalPages = filteredBooks.reduce((sum, b) => sum + (parseInt(b.paginas) || 0), 0);
+  const uniqueAuthors = new Set(filteredBooks.map(b => b.autor)).size;
   const mostCommonLanguage = (() => {
-    if (!books.length) return "-";
+    if (!filteredBooks.length) return "-";
     const freq = {};
-    books.forEach(b => {
+    filteredBooks.forEach(b => {
       if (b.idioma) freq[b.idioma] = (freq[b.idioma] || 0) + 1;
     });
     return Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
   })();
+
+  // Add this function:
+  const handleToggleRent = async (book) => {
+    try {
+      const updatedBook = { ...book, rented: !book.rented };
+      await axios.put(`http://localhost:3000/tasks/${book.id}`, updatedBook);
+      setBooks(books.map(b => b.id === book.id ? updatedBook : b));
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-200 via-sky-200 to-pink-200 flex flex-col items-center">
@@ -109,7 +145,7 @@ const handleSaveChanges = async (e) => {
       </motion.header>
 
       <main className="flex flex-col gap-10 w-full max-w-6xl pb-16">
-        {/* Add + Search Combo */}
+        {/* Add + Search + Sort Combo */}
         <div className="flex flex-col sm:flex-row items-center gap-4 mb-2 w-full">
           <motion.button
             whileHover={{
@@ -130,20 +166,37 @@ const handleSaveChanges = async (e) => {
             <FiPlus className="text-lg" />
             Adicionar Livro
           </motion.button>
-          <div className="relative flex-1 w-full sm:w-auto">
-            <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-400 text-xl pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Buscar livro por título..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="pl-11 pr-4 py-3 border border-blue-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white/80 text-slate-800 text-lg placeholder-slate-500 transition w-full"
-            />
+          <div className="flex flex-1 w-full sm:w-auto gap-2">
+            <div className="relative flex-1">
+              <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-400 text-xl pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Buscar livro por título..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="pl-11 pr-4 py-3 border border-blue-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white/80 text-slate-800 text-lg placeholder-slate-500 transition w-full"
+              />
+            </div>
+            <div className="flex items-center">
+              <label htmlFor="sortBy" className="sr-only">Ordenar</label>
+              <select
+                id="sortBy"
+                value={sortBy}
+                onChange={e => setSortBy(e.target.value)}
+                className="pl-4 pr-6 py-4 border border-blue-300 rounded-lg shadow bg-white/80 text-blue-700 text-lg transition focus:outline-none focus:ring-2 focus:ring-blue-300"
+                style={{ minWidth: 180 }}
+              >
+                <option value="default">Ordenar por padrão</option>
+                <option value="title">Título (A-Z)</option>
+                <option value="autor">Autor (A-Z)</option>
+                <option value="paginas">Páginas (crescente)</option>
+              </select>
+            </div>
           </div>
         </div>
 
         {/* Analytics Bar */}
-        <section className="w-full max-w-6xl mb-6 px-6">
+        <section className="w-full max-w-6xl mb-2 px-6">
           <div className="flex flex-wrap gap-6 justify-between items-center bg-white/80 rounded-lg shadow p-4 text-slate-700 text-base font-medium border border-blue-100">
             <span className="flex items-center gap-2">
               <FiBookOpen className="text-blue-500" />
@@ -167,6 +220,88 @@ const handleSaveChanges = async (e) => {
           </div>
         </section>
 
+        {/* Filter Toggle - now below analytics */}
+        <div className="flex justify-center gap-4 mb-6">
+          <motion.button
+            whileHover={{ scale: 1.07 }}
+            whileTap={{ scale: 0.96 }}
+            className={`px-5 py-2 rounded-lg font-semibold shadow transition
+              ${filter === "all" ? "bg-blue-700 text-white" : "bg-white/80 text-blue-700 border border-blue-200"}
+            `}
+            onClick={() => setFilter("all")}
+          >
+            <FiBook className="inline mr-2" /> Todos
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.07 }}
+            whileTap={{ scale: 0.96 }}
+            className={`px-5 py-2 rounded-lg font-semibold shadow transition
+              ${filter === "available" ? "bg-green-600 text-white" : "bg-white/80 text-green-700 border border-green-200"}
+            `}
+            onClick={() => setFilter("available")}
+          >
+            <FiBookOpen className="inline mr-2" /> Disponíveis
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.07 }}
+            whileTap={{ scale: 0.96 }}
+            className={`px-5 py-2 rounded-lg font-semibold shadow transition
+              ${filter === "rented" ? "bg-yellow-500 text-white" : "bg-white/80 text-yellow-700 border border-yellow-200"}
+            `}
+            onClick={() => setFilter("rented")}
+          >
+            <FiCheckCircle className="inline mr-2" /> Alugados
+          </motion.button>
+        </div>
+
+        {/* Book grid or empty state */}
+        {totalBooks === 0 ? (
+          <div className="w-full flex justify-center items-center py-20">
+            <span className="text-xl text-slate-400 font-semibold">
+              Nenhum livro encontrado para este filtro.
+            </span>
+          </div>
+        ) : (
+          <div className="flex flex-wrap justify-center gap-8">
+            <AnimatePresence>
+              {filteredBooks.map((book, idx) => (
+                <motion.div
+                  key={book.id}
+                  layout
+                  initial={{ opacity: 0, y: 40, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 40, scale: 0.95 }}
+                  whileHover={{
+                    scale: 1.03,
+                    rotateY: 4,
+                    boxShadow: "0 0 24px 4px #60a5fa55",
+                  }}
+                  whileTap={{
+                    scale: 0.98,
+                    rotateY: -4,
+                    boxShadow: "0 0 32px 8px #818cf855",
+                  }}
+                  transition={{
+                    duration: 0.5,
+                    delay: idx * 0.07,
+                    type: "spring",
+                    stiffness: 120,
+                    damping: 18,
+                  }}
+                >
+                  <BookCard
+                    book={book}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    onToggleRent={handleToggleRent}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
+
+        {/* ...AddBookModal stays at the end... */}
         <AddBookModal
           isOpen={showModal}
           onClose={handleModalClose}
@@ -175,42 +310,6 @@ const handleSaveChanges = async (e) => {
           setNewBook={editBook ? setEditBook : setNewBook}
           isEdit={!!editBook}
         />
-        <div className="flex flex-wrap justify-center gap-8">
-          <AnimatePresence>
-            {filteredBooks.map((book, idx) => (
-              <motion.div
-                key={book.id}
-                layout
-                initial={{ opacity: 0, y: 40, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 40, scale: 0.95 }}
-                whileHover={{
-                  scale: 1.03,
-                  rotateY: 4,
-                  boxShadow: "0 0 24px 4px #60a5fa55",
-                }}
-                whileTap={{
-                  scale: 0.98,
-                  rotateY: -4,
-                  boxShadow: "0 0 32px 8px #818cf855",
-                }}
-                transition={{
-                  duration: 0.5,
-                  delay: idx * 0.07,
-                  type: "spring",
-                  stiffness: 120,
-                  damping: 18,
-                }}
-              >
-                <BookCard
-                  book={book}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                />
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
       </main>
     </div>
   );
